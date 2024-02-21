@@ -1,17 +1,23 @@
 import './App.css';
 import { useEffect, useState } from 'react';
+import InputTime from './components/InputTime/InputTime';
 
 
 
 function App() {
 
+  // time variables
   const [displayTime, setDisplayTime] = useState(null); // total time displayed
-  const [restTime, setRestTime] = useState(2); // sets the rest interval
-  const [workTime, setWorkTime] = useState(4); // sets the work interval
-  const [warmUpTime, setWarmUpTime] = useState(5); // sets the warm up time
+  const [restTime, setRestTime] = useState(3); // sets the rest interval
+  const [workTime, setWorkTime] = useState(5); // sets the work interval
+  const [warmUpTime, setWarmUpTime] = useState(7); // sets the warm up time
+
+  // display variables
   const [exerciseDisplay, setExerciseDisplay] = useState(''); // displays exercise on screen
   const [nextExerciseDisplay, setNextExerciseDisplay] = useState(''); // displays next exercise on screen
   const [activity, setActivity] = useState(''); // displays next exercise on screen
+
+
 
   // classic spartacus exercise list
   const spartacusWorkout = [
@@ -27,24 +33,27 @@ function App() {
     'Military Press',
   ];
   // console.log('Length:', spartacusWorkout.length);
+  const customWorkout = [
+    'Push Ups',
+    'Burpees',
+    'Sprints',
+    'Pull Ups'
+  ];
 
-
-  // display variables
-
-  // countdown clock
+  // countdown clock logic
   let intervalTime; // used to set the interval
   let totalTime = warmUpTime; // start of the workout time 
   let exerciseCount = 0; // keeps track of where you are in the workout
   let nextExerciseCount = 0; // counts 1 ahead of where you are in the workout
 
-
   // start warm-up time
-  const startWarmUp = () => {
-    console.log('Starting Timer');
-    console.log('NEXT Exercise', spartacusWorkout[nextExerciseCount]);
+  // you can pass the workout array to the function through variables
+  const startWarmUp = (workoutArray) => {
+    console.log('Starting Timer', workoutArray);
+    console.log('NEXT Exercise', workoutArray[nextExerciseCount]);
     // display first exercise and category
-    setNextExerciseDisplay(`Up Next: ${spartacusWorkout[nextExerciseCount]}`);
-    setActivity(`Warm Up`);
+    setNextExerciseDisplay(`Up Next: ${workoutArray[nextExerciseCount]}`);
+    setExerciseDisplay(`Warm Up`);
 
     // run warm up time
     intervalTime = setInterval(() => {
@@ -57,26 +66,26 @@ function App() {
         console.log('WARM UP 0');
         clearInterval(intervalTime); // stop timer
         totalTime = workTime; // reset time for first work interval
-        startWorkTime(); // run work time
+        startWorkTime(workoutArray); // run work time
       }
     }, 1000);
   }
 
   // start work time
-  const startWorkTime = () => {
-    console.log('Start WORK');
+  const startWorkTime = (workoutArray) => {
+    console.log('Start WORK', workoutArray);
     setActivity(`Work`); // todo set an activity? toggle boolean?
 
     // increment/set nextExercise
     nextExerciseCount += 1;
     console.log('nextEXercise Count:', nextExerciseCount);
-    if (nextExerciseCount === spartacusWorkout.length) {
+    if (nextExerciseCount === workoutArray.length) {
       setNextExerciseDisplay(`End of Workout`);
     }
     else {
-      setNextExerciseDisplay(`Up Next: ${spartacusWorkout[nextExerciseCount]}`); // set next exercise display
+      setNextExerciseDisplay(`Up Next: ${workoutArray[nextExerciseCount]}`); // set next exercise display
     }
-    setExerciseDisplay(spartacusWorkout[exerciseCount]); // exercise display
+    setExerciseDisplay(workoutArray[exerciseCount]); // exercise display
 
     // run work time
     intervalTime = setInterval(() => {
@@ -92,14 +101,14 @@ function App() {
         // reset time for rest
         totalTime = restTime;
         // run rest time
-        startRestTime();
+        startRestTime(workoutArray);
       }
     }, 1000);
   }
 
   // start rest time
-  const startRestTime = () => {
-    console.log(`start REST`);
+  const startRestTime = (workoutArray) => {
+    console.log(`start REST`, workoutArray);
     setActivity(`Rest`);
 
     // run rest time
@@ -110,7 +119,7 @@ function App() {
         setDisplayTime(totalTime);
       }
       // workout complete
-      else if (totalTime === 0 && exerciseCount === (spartacusWorkout.length - 1)) {
+      else if (totalTime === 0 && exerciseCount === (workoutArray.length - 1)) {
         console.log('workout complete');
         setExerciseDisplay('Workout Complete!');
         setNextExerciseDisplay('Workout Next Complete!');
@@ -121,12 +130,10 @@ function App() {
         clearInterval(intervalTime); // stop timer
         totalTime = workTime; // reset time for rest
         exerciseCount += 1; // increment exercises
-        startWorkTime(); // run work time
+        startWorkTime(workoutArray); // run work time
       }
     }, 1000);
   }
-
-
 
 
 
@@ -136,10 +143,13 @@ function App() {
 
       <h1>The Classic Spartacus Training</h1>
 
+      <InputTime placeholder={'work'} changeFunction={setWorkTime} />
+      <InputTime placeholder={'rest'} changeFunction={setRestTime} />
+      <InputTime placeholder={'warmUp'} changeFunction={setWarmUpTime} />
 
-      <button onClick={startWarmUp}>Start</button>
-      {/* <button onClick={pauseTime}>Pause</button> */}
+      <button onClick={() => startWarmUp(spartacusWorkout)}>Start</button>
 
+      <br />
       {/* showing time */}
       {displayTime}
       <br />
